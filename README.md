@@ -26,6 +26,7 @@ Python 3.4.0 (default, Jun 19 2015, 14:20:21)
 ### To Setup:
 
 - clone repository
+- activate virtualenv (ex using virtualenvwrapper `mkvirtualenv -p /usr/bin/python3 battlegithubstars`)
 - install requirements (`pip install -r requirements`)
 
 - run tests:
