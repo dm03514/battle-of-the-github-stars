@@ -2,10 +2,18 @@
 
 {% block content %}
 
-{% for repo in repos %}
-    <content class="repo">
-        {{ repo }}
-    </content>
+{% for url, repo in repos %}
+<content class="repo">
+    <h3>Repository URL {{ url }}</h3>
+    <table>
+        {% for field, value in repo.items %}
+        <tr>
+            <td>{{ field }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</content>
 {% endfor %}
 
 {% endblock %}

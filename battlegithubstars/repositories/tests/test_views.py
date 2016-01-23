@@ -48,6 +48,7 @@ class GithubBattleFormViewTestCase(TestCase):
 
         class GHBFTestView(GitHubBattleFormView):
             github_client_class = mock_request_class
+            FILTERED_KEYS = ()
 
         factory = RequestFactory()
         request = factory.get(reverse('repositories:githubbattle'))
@@ -67,3 +68,28 @@ class GithubBattleFormViewTestCase(TestCase):
         ))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('repo_comparison.html')
+
+    def test_filter_repo_limits_keys(self):
+        """
+        Tests that filter_repo filters keys that are not in KEYS tuple
+
+        :return:
+        """
+        repo_dict = {
+            'stargazers_count': 1,
+            'watchers_count': 1,
+            'forks_count': 1,
+            'strip_me': 'here',
+            'remove': 'this'
+        }
+
+        expected = {
+            'stargazers_count': 1,
+            'watchers_count': 1,
+            'forks_count': 1,
+        }
+
+        self.assertEqual(
+            GitHubBattleFormView.filter_repo(repo_dict),
+            expected
+        )

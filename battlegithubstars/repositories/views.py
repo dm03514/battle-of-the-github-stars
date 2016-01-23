@@ -9,6 +9,11 @@ class GitHubBattleFormView(FormView):
     template_name = 'github_battle_form_view.html'
     form_class = GitHubBattleForm
     github_client_class = GitHubAPIClient
+    FILTERED_KEYS = (
+        'stargazers_count',
+        'watchers_count',
+        'forks_count',
+    )
 
     def form_valid(self, form):
         """
@@ -34,8 +39,22 @@ class GitHubBattleFormView(FormView):
             raise e
 
         context = {
-            'repos': repos
+            'repos': [(url, self.filter_repo(repo)) for url, repo in repos]
         }
 
         return render(
             self.request, 'repo_comparison.html', context)
+
+    @classmethod
+    def filter_repo(cls, repo_dict):
+        """
+        Returns a repo with only a couple of fields displayed:
+        Star count, watcher count, and fork count
+        :param repo_dict:
+        :return:
+        """
+        filtered_dict = {}
+        for key in cls.FILTERED_KEYS:
+            filtered_dict[key] = repo_dict[key]
+        return filtered_dict
+
