@@ -5,7 +5,7 @@ BATTLE OF THE GITHUB STARS
 Create a django site that does the following:
 
 1. Displays a page with a form consisting of two text inputs and a submission button.
-    These inputs should accept github URLs in the format https://github.com/[USER]/[REPOSITORY]
+    These inputs should accept github URLs in th	e format https://github.com/[USER]/[REPOSITORY]
 2. On form submission, do the following:
 	* Retrieve the number of stars each repository has on GitHub, using the GitHub API.
 	    You can choose to query the API on the front end or the back end, your choice.
