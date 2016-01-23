@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse_lazy
+from django.forms import forms
 from django.shortcuts import render
 from django.views.generic.edit import FormView
 from repositories.forms import GitHubBattleForm
@@ -14,6 +15,7 @@ class GitHubBattleFormView(FormView):
         'watchers_count',
         'forks_count',
     )
+    GITHUB_API_ERROR_MESSAGE = 'Error fetching info for {} from github API'
 
     def form_valid(self, form):
         """
@@ -28,15 +30,20 @@ class GitHubBattleFormView(FormView):
         """
         # get github data
         client = self.github_client_class()
+        repos = []
         try:
-            repos = [
-                (repo_info['url'], client.get_repo(repo_info['path']))
-                    for repo_info in form.cleaned_data.values()
-            ]
+            for form_field, repo_info in form.cleaned_data.items():
+                repos.append(
+                    (repo_info['url'], client.get_repo(repo_info['path']))
+                )
         except GitHubAPIError as e:
             # application is aware of this error, but don't do anything
             # in the case it's thrown
-            raise e
+            form._errors.setdefault(
+                forms.NON_FIELD_ERRORS,
+                self.GITHUB_API_ERROR_MESSAGE.format(repo_info['url'])
+            )
+            return self.form_invalid(form)
 
         context = {
             'repos': [(url, self.filter_repo(repo)) for url, repo in repos]

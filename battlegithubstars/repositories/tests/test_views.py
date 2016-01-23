@@ -1,4 +1,5 @@
 from unittest.mock import Mock
+from django.forms import forms
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from repositories.utils import GitHubAPIError
@@ -17,7 +18,12 @@ class GithubBattleFormViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('github_battle_form_view.html')
 
-    def test_raise_github_api_error_on_get_repo_failure(self):
+    def test_render_form_error_on_get_repo_failure(self):
+        """
+        Tests that form is rendered with error on GitHubAPI error
+
+        :return:
+        """
         mock_request_class = Mock()
         mock_client = mock_request_class.return_value
         mock_client.get_repo.side_effect = GitHubAPIError()
@@ -31,8 +37,21 @@ class GithubBattleFormViewTestCase(TestCase):
                 'path': '', 'url': 'repo1'
             }
         }
-        with self.assertRaises(GitHubAPIError):
-            response = view.form_valid(form=Mock(cleaned_data=mock_repos))
+        factory = RequestFactory()
+        request = factory.get(reverse('repositories:githubbattle'))
+        view.request = request
+
+        mock_form = Mock(
+            cleaned_data=mock_repos
+        )
+        response = view.form_valid(form=mock_form)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('github_battle_form_view.html')
+        mock_form._errors.setdefault.assert_called_once_with(
+            forms.NON_FIELD_ERRORS,
+            GitHubBattleFormView.GITHUB_API_ERROR_MESSAGE.format('repo1')
+        )
 
     def test_form_valid_gets_multiple_repos_and_renders_template(self):
         """
