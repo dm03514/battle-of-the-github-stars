@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for repo in repos %}
+    <content class="repo">
+        {{ repo }}
+    </content>
+{% endfor %}
+
+{% endblock %}
