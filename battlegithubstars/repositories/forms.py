@@ -62,3 +62,11 @@ class URLPathExtractorField(forms.URLField):
                     full_url, self.netloc, url_parts.netloc)
             )
 
+
+class GitHubBattleForm(forms.Form):
+    PATH_REGEX = r'^/(?P<USER>\w+)/(?P<REPOSITORY>[\w-]+)$'
+
+    repo_1_url = URLPathExtractorField(
+        netloc='github.com', path_regex=PATH_REGEX)
+    repo_2_url = URLPathExtractorField(
+        netloc='github.com', path_regex=PATH_REGEX)

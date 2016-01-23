@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 # Create your tests here.
-from repositories.forms import URLPathExtractorField
+from repositories.forms import URLPathExtractorField, GitHubBattleForm
 
 
 class URLPathExtractorFieldTestCase(TestCase):
@@ -45,3 +45,49 @@ class URLPathExtractorFieldTestCase(TestCase):
             }
         }
         self.assertEqual(results, expected)
+
+
+class GitHubBattleFormTesCase(TestCase):
+
+    def test_form_validates_with_two_valid_urls(self):
+        """
+        Tests that the form can validate and return the correct data.
+
+        :return:
+        """
+        form_data = {
+            'repo_1_url': 'https://github.com/dm03514/CraigslistGigs',
+            'repo_2_url': 'https://github.com/dm03514/django-cbv-toolkit'
+        }
+        form = GitHubBattleForm(form_data)
+        self.assertTrue(form.is_valid())
+        expected = {
+            'repo_2_url': {
+                'path': {
+                    'USER': 'dm03514',
+                    'REPOSITORY': 'django-cbv-toolkit'
+                },
+                'url': 'https://github.com/dm03514/django-cbv-toolkit'
+            },
+            'repo_1_url': {
+                'path': {
+                    'USER': 'dm03514',
+                    'REPOSITORY': 'CraigslistGigs'
+                },
+                'url': 'https://github.com/dm03514/CraigslistGigs'
+            }
+        }
+        self.assertEqual(form.cleaned_data, expected)
+
+    def test_form_is_invalid_when_one_url_is_valid(self):
+        """
+        Tests that form detects when one url is valid and the other isn't.
+
+        :return:
+        """
+        form_data = {
+            'repo_1_url': 'https://github.com/dm03514/CraigslistGigs',
+            'repo_2_url': 'https://wrong.com/dm03514/django-cbv-toolkit'
+        }
+        form = GitHubBattleForm(form_data)
+        self.assertFalse(form.is_valid())
